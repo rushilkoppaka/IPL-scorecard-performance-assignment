@@ -1,1 +1,0 @@
-# IPL-scorecard-performance-assignment
