@@ -2,38 +2,39 @@
 
  
 ```python
-import numpy as np
+match_name_list=[]                                          #initialising lists
+match_list=[]
+final_player_names=[]
+final_scores=[]
 
-def reconstruct_from_noisy_patches(input_dict, shape):
-    """
-    input_dict:
-    key: 4-tuple: (tlr, tlc, brr, brc):
-            location of the patch in the original image. tlr, tlc are inclusive but brr, brc are exclusive.
-            i.e. if M is the reconstructed matrix. M[tlr:brr, tlc:brc] will give the patch.
-    value: 2d numpy array: the image patch.
-    shape: shape of the original matrix.
-    """
+a=int(input('enter no.of matches:'))
+for i in range(0,a):                                                 #getting main dictionary(entire league)
+    match_name=input('enter match name:')
+    match_name_list.append(match_name)
+    single_match_dict = {}
+    while True:                                           #getting inside dictionary(individual match)
+        check=input('to go next match type no else press enter\n')
+        if check=='no':
+            print()
+            break
+        else:
+            player_name,runs_scored=input('player name:'),int(input('runs scored:'))
+            single_match_dict[player_name]=runs_scored
+            if player_name in final_player_names:                                             #for tuple scorecard incrementing score of individual
+                final_scores[final_player_names.index(player_name)]+=runs_scored
+            else:
+                final_player_names.append(player_name)
+                final_scores.append(runs_scored)
 
-    black_count, white_count = np.zeros(shape), np.zeros(shape)
-    mid_count, mid_total = np.zeros(shape), np.zeros(shape)
-    M = np.zeros(shape)
+    match_list.append(single_match_dict)
 
-    for tup, val in input_dict.items():
-        tlr, tlc, brr, brc = tup
-        white_count[tlr:brr, tlc:brc] += np.where(val == 255, 1, 0)
-        black_count[tlr:brr, tlc:brc] += np.where(val == 0, 1, 0)
-        mid_count[tlr:brr, tlc:brc] += np.where(np.logical_and(val != 0, val != 255), 1, 0)
-        val = np.mod(val, 255)
-        mid_total[tlr:brr, tlc:brc] += val
+final_dict=dict(zip(match_name_list,match_list))
+print(final_dict)
 
-    #if mid_count != 0 final value is total/count
-    #mid_total = np.where(mid_count == 0, mid_total, np.divide(mid_total, mid_count))
-    mid_total = np.divide(mid_total, mid_count + (mid_count == 0))
-    #if mid_count is 0 & white>black put 255 else put 0
-    mid_total = np.where(mid_count == 0, np.where(white_count >= black_count, 255, 0), mid_total)
+scorecard=list(zip(final_player_names,final_scores))                #creating tuple list
 
-    #if no patch then put 0
-    M = np.where(mid_count + white_count + black_count == 0, 0, mid_total)
+s=sorted(scorecard,reverse=True)                                    #sorting names in decreasing lexicographic order
+s2=sorted(s,key= lambda x:x[1],reverse=True)                        #sorting according to runs scored
 
-    return M
+print(s2)
 ```
